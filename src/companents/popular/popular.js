@@ -2,61 +2,91 @@ import React, {useState, useEffect} from 'react';
 import axios from "axios";
 import {ApiKey} from "../ApiKey/ApiKey";
 import MovieCard from "../Card/MovieCard";
-
+import Netflix from "./../../images/Netflix.jpg"
 
 const Popular = () => {
-    const [popular, setPopular] = useState([])
-    const [page, setPage] = useState(1)
 
-    const handelPage = (pageNum) => {
-        setPage(pageNum)
+    const [popular, setPopular] = useState([])
+
+    const [pages, setPages] = useState(1)
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageNumbers = [];
+
+    const showPage = (newPage) => {
+        try {
+            axios(`https://api.themoviedb.org/3/movie/popular?api_key=${ApiKey}&language=en-US&page=${newPage || 1}`)
+
+                .then(({data}) => {
+                    setPages(data.total_pages)
+                    console.log(data)
+                    setPopular(data.results)
+                })
+
+            window.scrollTo(0, 0)
+            setCurrentPage(newPage);
+        } catch (e) {
+            console.log(e)
+        }
     }
 
+    const [postPerPage] = useState(20);
 
     useEffect(() => {
-        axios(`https://api.themoviedb.org/3/movie/popular?api_key=${ApiKey}&language=ru-RU&page=${page}`)
-            .then(({data}) => setPopular(data.results))
-        window.scrollTo(0, 0)
-    }, [page])
-    console.log(popular)
+        showPage()
 
+    }, []);
+
+    const totalPosts = pages;
+    console.log(totalPosts)
+
+
+    for (let i = 1; i <= Math.ceil(totalPosts / postPerPage); i++) {
+        pageNumbers.push(i);
+    }
+
+    console.log(pageNumbers)
 
     return (
+        <div className="" style={{
+            background: `url(${Netflix})no-repeat center/cover fixed`,
+            width: "100%",
+        }}>
+            <div className=" container mx-auto p-10 flex-col md:flex-row items-center mx-auto ">
+                <h1 className="sm:text-center md:text-center lg:text-left xl:text-left text-3xl w-full text-white py-5 font-bold">Top rated movies</h1>
 
-        <div className="bg-gray-800">
-            <div className="container mx-auto flex flex-wrap p-10 flex-col md:flex-row items-center mx-auto">
-                <h1 className="text-3xl w-full py-5 text-gray-100">Populars movies</h1>
-
-                <div className="flex flex-row flex-wrap pb-20">
+                <div className="flex flex-row flex-wrap ">
                     {
                         popular.map(el => (
-
-                                <MovieCard el={el} key={el.id}/>
-
-                            )
-                        )
-
+                            <MovieCard el={el} key={el.id}/>
+                        ))
                     }
-
-                </div>
-
-                <div className="container">
-                    <div className="flex justify-center">
-                        {
-                            [...Array(10).keys()].map(el => (
-                                <button onClick={() => handelPage(el + 1)}
-                                        className={`bg-gray-600 px-4 py-1 rounded-md text-white font-bold mx-3 ${page === el + 1 && "bg-blue-700"}`}>{el + 1}</button>
-                            ))
-                        }
-                    </div>
                 </div>
 
 
+                <div className="pagination flex flex-wrap list-none">
+                    {pageNumbers.slice(0,20).map((page) => (
+
+                        <li key={page}>
+                            <button
+                                className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                                style={{
+                                    backgroundColor: page === currentPage ? "red" : "gray",
+                                    color: "white",
+                                    margin: "5px",
+                                }}
+                                onClick={() => showPage(page)}
+                            >
+                                {page}
+                            </button>
+                        </li>
+                    ))}
+                </div>
             </div>
-
         </div>
 
+
     );
+
 };
 
 export default Popular;

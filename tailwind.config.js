@@ -1,13 +1,23 @@
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
-  theme: {
-    extend: {
-      fontFamily:{
-        'head':['Roboto']
-      }
+    content: [
+        "./src/**/*.{js,jsx,ts,tsx}",
+    ],
+    theme: {
+
+        screens: {
+            sm: '480px',
+            md: '768px',
+            lg: '976px',
+            xl: '1440px',
+        },
+
+        extend: {
+            fontFamily: {
+                'head': ['Roboto']
+            }
+        },
     },
-  },
-  plugins: [],
+    plugins: [
+        require('flowbite/plugin')
+    ],
 }
